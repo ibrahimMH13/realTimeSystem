@@ -1,0 +1,13 @@
+{
+    "require": {
+        "voryx/thruway": "^0.6.0",
+        "cboden/ratchet": "^0.4.3",
+        "react/zmq": "^0.4.0",
+        "symfony/dotenv": "^6.0"
+    },
+  "autoload": {
+    "psr-4": {
+      "Zmq\\": "./src"
+      }
+    }
+}

@@ -1,0 +1,53 @@
+version: '3'
+services:
+    mysql:
+        build:
+            context: ./mysql
+        volumes:
+            - "/var/lib/project_data/mysql:/var/lib/mysql/"
+        container_name: real-time-mysql
+        privileged: true
+
+    webapp-api:
+        build:
+            context: ./webapp
+        volumes:
+            - "../../api/:/var/www/html/"
+            - "./webapp/files/real-time.conf:/etc/apache2/sites-available/real-time.conf"
+            - "./webapp/files/opcache.ini:/etc/php/8.0/mods-available/opcache.ini"
+        container_name: real-time-api
+        privileged: true
+        ports:
+            - "8020:80"
+
+    webapp-app:
+        build:
+            context: ./webapp
+        volumes:
+            - "../../app/:/var/www/html/"
+            - "./webapp/files/real-time.conf:/etc/apache2/sites-available/real-time.conf"
+            - "./webapp/files/opcache.ini:/etc/php/8.0/mods-available/opcache.ini"
+        container_name: real-time-app
+        privileged: true
+        ports:
+            - "8040:80"
+
+    zmq-server:
+        build:
+            context: ./zmq
+        volumes:
+            - "../../zmq/:/var/www/html/"
+        container_name: zmq-server
+        command: sleep 100000000
+        privileged: true
+        ports:
+            - "8030:80"
+            - "7474:7474"
+
+    mongodb-server:
+        image: "mongo:5.0-focal"
+        container_name: real-time-mongodb
+        privileged: true
+        volumes:
+            - "/var/lib/real-time/mongodb:/data/db/"
+
