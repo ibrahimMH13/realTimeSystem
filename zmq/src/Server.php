@@ -2,8 +2,10 @@
 
 namespace Zmq;
 use React\ZMQ\Context;
+use Thruway\Authentication\AuthenticationManager;
 use Thruway\Peer\Router;
 use Thruway\Transport\RatchetTransportProvider;
+use Zmq\Auth\AuthToken;
 
 class Server{
     /**
@@ -29,13 +31,17 @@ class Server{
         $this->loop    = $this->router->getLoop();
         $context       = new Context($this->loop);
         $this->pull    = $context->getSocket(\ZMQ::SOCKET_PULL);
-        $this->pull->bind('tcp://172.26.0.6:8030');
+        $this->pull->bind('tcp://172.26.0.5:8030');
         return $this;
     }
 
     public function start(){
-        $this->router->addTransportProvider(new RatchetTransportProvider('0.0.0.0','7474'));
-        $this->router->addInternalClient(new Pusher('default',$this->loop,$this->pull));
-        $this->router->start();
+            $this->router->registerModules([
+                new AuthenticationManager()
+            ]);
+            $this->router->addInternalClient(new AuthToken(['default']));
+            $this->router->addTransportProvider(new RatchetTransportProvider('0.0.0.0','7474'));
+            $this->router->addInternalClient(new Pusher('default',$this->loop,$this->pull));
+            $this->router->start();
     }
 }

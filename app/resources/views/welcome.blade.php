@@ -53,10 +53,17 @@
     try {
         let connection = new autobahn.Connection({
             url: `{{env('REAL_TIME_WS')}}`,
-            realm:"default"
+            realm:"default",
+            onchallenge:(session,method,extra)=>{
+              return 'token';
+            },
+            authmethods:['token'],
         });
         connection.onopen = (session)=>{
             console.log('Connected');
+            function onevent(args) {
+                console.log("Event:", args);
+            }
             session.subscribe('1_chat',(payload)=>{
                 console.log('Received Payload MSG::',payload[0]);
             });
